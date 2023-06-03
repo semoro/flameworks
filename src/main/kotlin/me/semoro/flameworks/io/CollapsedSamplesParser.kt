@@ -3,12 +3,13 @@ package me.semoro.flameworks.io
 import me.semoro.flameworks.NameTable
 import me.semoro.flameworks.SamplePathToCallTreeBuilder
 import me.semoro.flameworks.TraceTree
+import java.util.stream.Stream
 
-fun parseCollapsedLines(lines: Sequence<String>): TraceTree {
+fun parseCollapsedLines(lines: Stream<String>): TraceTree {
     val nameTable = NameTable()
     val callTreeBuilder = SamplePathToCallTreeBuilder()
     var totalSampleCount = 0
-    for (line in lines) {
+    lines.forEach { line ->
         val lastSpaceIndex = line.lastIndexOf(' ')
         var idx = 0
         var prevIdx = 0

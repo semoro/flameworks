@@ -2,13 +2,11 @@ package me.semoro.flameworks
 
 import me.semoro.flameworks.io.parseCollapsedLines
 import java.io.File
-import java.io.FileReader
+import java.nio.file.Files
 
 
 object FlameWorks {
     fun loadCollapsed(path: File): TraceTree {
-        return FileReader(path).useLines {
-            parseCollapsedLines(it)
-        }
+        return parseCollapsedLines(Files.lines(path.toPath()))
     }
 }

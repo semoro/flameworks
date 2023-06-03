@@ -15,29 +15,29 @@ fun TraceTree.mergedSubTrees(select: FrameIdPredicate): TraceTree {
             }
         }
 
-        val newTreePosition = IntArray(nodeCount) { -1 }
+        val builderPosition = IntArray(nodeCount) { -1 }
         val builder = TreeStructBuilder()
         traverse {
             if (inSelectedTree[it.idx]) {
                 if (it.hasParent() && !select.matches(it)) {
-                    builder.currentIdx = newTreePosition[it.parent().idx]
+                    builder.currentIdx = builderPosition[it.parent().idx]
                 } else {
                     builder.currentIdx = -1
                 }
-                newTreePosition[it.idx] = builder.findOrInsertChild(ids[it.idx]).idx
+                builderPosition[it.idx] = builder.findOrInsertChild(ids[it.idx]).idx
             }
         }
-        val result = builder.build()
+        val (result, mapping) = builder.build()
 
         val newOwnSamples = IntArray(result.nodeCount)
         traverse {
-            val pos = newTreePosition[it.idx]
+            val pos = builderPosition[it.idx]
             if (pos != -1) {
-                newOwnSamples[pos] += ownSamples[it.idx]
+                newOwnSamples[mapping[pos]] += ownSamples[it.idx]
             }
         }
 
-        return TraceTree(nameTable, result.ids, result.parents, result.nextSibling, newOwnSamples, result.maxDepth)
+        return TraceTree(nameTable, result, newOwnSamples)
     }
 }
 
@@ -54,6 +54,18 @@ class TreeStruct(
     val maxDepth: Int
 ) {
     val nodeCount = ids.size
+}
+
+
+/**
+ * Represents the result of building a tree structure.
+ *
+ * @property struct The built tree structure.
+ * @property idxMapping An integer array mapping builder indices to their corresponding index in the built tree structure.
+ */
+class TreeStructBuildingResult(val struct: TreeStruct, val idxMapping: IntArray) {
+    operator fun component1() = struct
+    operator fun component2() = idxMapping
 }
 
 /**
@@ -139,10 +151,11 @@ class TreeStructBuilder {
     /**
      * Convert builder intermediate structures into dense direct dfs structure
      */
-    fun build(): TreeStruct {
+    fun build(): TreeStructBuildingResult {
         val outIds = IntArray(treeSize)
         val outNextSibling = IntArray(treeSize) { -1 }
         val outParents = IntArray(treeSize)
+        val outMapping = IntArray(treeSize)
 
         var outPos = 0
 
@@ -153,6 +166,7 @@ class TreeStructBuilder {
             val nodeOutPos = outPos
             outIds[nodeOutPos] = ids[idx]
             outParents[nodeOutPos] = parent
+            outMapping[idx] = outPos
             outPos++
             // enter
             currentDepth++
@@ -178,11 +192,13 @@ class TreeStructBuilder {
             idx = nextSibling[idx]
         }
 
-        return TreeStruct(
+        val struct = TreeStruct(
             outIds,
             outNextSibling,
             outParents,
             maxDepth
         )
+
+        return TreeStructBuildingResult(struct, outMapping)
     }
 }

@@ -10,6 +10,15 @@ class TraceTree(
 ) {
     val nodeCount = ids.size
 
+    constructor(nameTable: NameTable, struct: TreeStruct, ownSamples: IntArray): this(
+        nameTable,
+        struct.ids,
+        struct.parents,
+        struct.nextSibling,
+        ownSamples,
+        struct.maxDepth
+    )
+
     inline fun map(compute: (Node) -> Int): IntArray {
         val data = IntArray(ids.size)
         for (idx in ids.indices) {

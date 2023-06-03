@@ -1,6 +1,7 @@
 package me.semoro.flameworks.test
 
 import me.semoro.flameworks.*
+import me.semoro.flameworks.io.parseCollapsedLines
 import org.jetbrains.kotlinx.dataframe.api.add
 import org.jetbrains.kotlinx.dataframe.api.head
 import org.jetbrains.kotlinx.dataframe.api.sortByDesc
@@ -31,25 +32,12 @@ class IndexTableTest {
 
     @Test
     fun testTreeBuilder() {
-        val callTreeBuilder = SamplePathToCallTreeBuilder()
-        val nameTable = NameTable()
 
-        callTreeBuilder.enter(nameTable.intern("a"))
-        callTreeBuilder.enter(nameTable.intern("b"))
-        callTreeBuilder.enter(nameTable.intern("c"))
-        callTreeBuilder.finishTrace(1)
+        val tree = parseCollapsedLines(
+            listOf("a;b;c 1", "a;b;d 1").stream()
+        )
 
-        callTreeBuilder.enter(nameTable.intern("a"))
-        callTreeBuilder.enter(nameTable.intern("d"))
-        callTreeBuilder.enter(nameTable.intern("e"))
-        callTreeBuilder.finishTrace(1)
-
-
-        println(callTreeBuilder.ids.contentToString())
-        println(callTreeBuilder.firstChild.contentToString())
-
-
-        val tree = callTreeBuilder.build(nameTable)
+        val nameTable = tree.nameTable
 
         tree.traverseDfs(PrintTreeVisitor(nameTable, tree.ids, tree.ownSamples))
 

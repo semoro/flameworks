@@ -72,7 +72,8 @@ class TreeStructBuildingResult(val struct: TreeStruct, val idxMapping: IntArray)
  * This class allows to build a custom tree structure
  */
 class TreeStructBuilder {
-    private var capacity = 16
+    var capacity = 16
+        private set
 
     private var ids = IntArray(capacity) { -1 }
     private var firstChild = IntArray(capacity) { -1 }

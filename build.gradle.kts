@@ -1,8 +1,8 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
-    kotlin("jvm") version "1.8.0"
-    kotlin("jupyter.api") version "0.11.0-327"
+    kotlin("jvm") version "1.9.0"
+    kotlin("jupyter.api") version "0.12.0-35"
 }
 
 group = "me.semoro"
@@ -14,7 +14,7 @@ repositories {
 
 dependencies {
     testImplementation(kotlin("test"))
-    implementation("org.jetbrains.kotlinx:dataframe:0.10.0-dev-1497")
+    implementation("org.jetbrains.kotlinx:dataframe:0.11.0")
 }
 
 tasks.test {
@@ -22,8 +22,7 @@ tasks.test {
 }
 
 kotlin {
-    jvmToolchain(17)
-
+    jvmToolchain(11)
 }
 
 tasks.withType<KotlinCompile> {

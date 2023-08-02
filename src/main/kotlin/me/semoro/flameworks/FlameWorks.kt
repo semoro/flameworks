@@ -6,6 +6,7 @@ import java.nio.file.Files
 import java.nio.file.Path
 
 
+@Suppress("unused")
 object FlameWorks {
     fun loadCollapsed(path: File): TraceTree {
         return parseCollapsedLines(Files.lines(path.toPath()))
